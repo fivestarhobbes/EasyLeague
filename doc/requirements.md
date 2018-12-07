@@ -7,7 +7,7 @@ General Application Requirements
 --------------------------------
 
 1. Must be a web application all communication done with the application should be done through a web browser
-2. The only browser that should be supported is Google Chrome
+2. The only browser that will be supported for now is Google Chrome and support for other browsers will be added later
 3. The application will have 2 different kinds of users: Directors and Players
 4. Directors can create and sign-up for league events
 5. Players can sign-up for league events
