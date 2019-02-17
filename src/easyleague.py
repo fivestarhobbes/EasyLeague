@@ -11,10 +11,14 @@ Author: John Hsu
 """
 
 import sys
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QApplication
-from PyQt5.QtGui import *
+from os.path import dirname, abspath, sep
 
+from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QApplication
+from PyQt5.QtGui import QIcon
+
+
+
+IMAGE_PATH = dirname(dirname(abspath(__file__))) + sep + "img" + sep
 
 class EasyLeagueMainWindow(QMainWindow):
     """
@@ -38,10 +42,10 @@ class EasyLeagueMainWindow(QMainWindow):
         optionMenu = menubar.addMenu('Options')
 
 
-        savAct = QAction(QIcon("save.png"), 'Save', self)
+        savAct = QAction(QIcon(IMAGE_PATH + "save.png"), 'Save', self)
         fileMenu.addAction(savAct)
 
-        newAct = QAction(QIcon("new.png"), 'New', self)
+        newAct = QAction(QIcon(IMAGE_PATH + "new.png"), 'New', self)
         fileMenu.addAction(newAct)
 
         createGrpAct = QAction('Create Group', self)
