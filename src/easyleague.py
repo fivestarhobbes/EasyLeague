@@ -2,36 +2,46 @@
 # -*- coding: utf-8 -*-
 
 """
-ZetCode PyQt5 tutorial
+EasyLeague Application
 
-This program creates a submenu.
+This program will allow users to setup and run a league.
 
-Author: Jan Bodnar
-Website: zetcode.com
-Last edited: August 2017
+Author: John Hsu
+
 """
 
 import sys
+from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QApplication
+from PyQt5.QtGui import *
 
 
-class Example(QMainWindow):
+class EasyLeagueMainWindow(QMainWindow):
+    """
+    This method will create the main window for EasyLeague software
+
+    """
 
     def __init__(self):
+        """doc"""
         super().__init__()
 
         self.initUI()
 
-    def initUI(self):
 
+    def initUI(self):
+        """
+        This method will create the initial screen for EasyLeague
+        """
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('File')
         optionMenu = menubar.addMenu('Options')
 
-        savAct = QAction('Save', self)
+
+        savAct = QAction(QIcon("save.png"), 'Save', self)
         fileMenu.addAction(savAct)
 
-        newAct = QAction('New', self)
+        newAct = QAction(QIcon("new.png"), 'New', self)
         fileMenu.addAction(newAct)
 
         createGrpAct = QAction('Create Group', self)
@@ -55,7 +65,6 @@ class Example(QMainWindow):
 
 
 if __name__ == '__main__':
-    print("Before")
     app = QApplication(sys.argv)
-    ex = Example()
+    ex = EasyLeagueMainWindow()
     sys.exit(app.exec_())
