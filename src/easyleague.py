@@ -63,8 +63,8 @@ class EasyLeagueMainWindow(QMainWindow):
         loadFileAct = QAction('Load File', self)
         optionMenu.addAction(loadFileAct)
 
-        self.setGeometry(300, 300, 300, 200)
-        self.setWindowTitle('Submenu')
+        self.setGeometry(200, 0, 1000, 800)
+        self.setWindowTitle('EasyLeague')
         self.show()
 
 
