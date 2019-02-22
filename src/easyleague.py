@@ -61,12 +61,15 @@ class EasyLeagueMainWindow(QMainWindow):
         optionMenu.addAction(rmvPlayerAct)
 
         loadFileAct = QAction('Load File', self)
+        loadFileAct.triggered.connect(self.onLoadFile)
         optionMenu.addAction(loadFileAct)
 
         self.setGeometry(200, 0, 1000, 800)
         self.setWindowTitle('EasyLeague')
         self.show()
 
+    def onLoadFile(self, checked):
+        print('Here you go')
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
