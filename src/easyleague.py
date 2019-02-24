@@ -40,6 +40,7 @@ class EasyLeagueMainWindow(QMainWindow):
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('File')
         optionMenu = menubar.addMenu('Options')
+        toolbar = self.addToolBar("Load")
 
 
         savAct = QAction(QIcon(IMAGE_PATH + "save.png"), 'Save', self)
@@ -63,6 +64,7 @@ class EasyLeagueMainWindow(QMainWindow):
         loadFileAct = QAction('Load File', self)
         loadFileAct.triggered.connect(self.onLoadFile)
         optionMenu.addAction(loadFileAct)
+        toolbar.addAction(loadFileAct)
 
         self.setGeometry(200, 0, 1000, 800)
         self.setWindowTitle('EasyLeague')
