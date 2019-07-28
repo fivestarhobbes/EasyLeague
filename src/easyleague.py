@@ -93,8 +93,12 @@ class EasyLeagueMainWindow(QMainWindow):
         createPlayerButton = QPushButton('Create Player', self)
         createPlayerButton.clicked.connect(self.__onCreatePlayer)
 
+        createGroupsButton = QPushButton('Create Groups', self)
+        createGroupsButton.clicked.connect(self.__onCreateGroups)
+
         toolbar.addWidget(loadButton)
         toolbar.addWidget(createPlayerButton)
+        toolbar.addWidget(createGroupsButton)
 
     def __createTable(self):
         table = QTreeWidget()
@@ -204,10 +208,22 @@ class EasyLeagueMainWindow(QMainWindow):
         name = playerDialog.nameEdit.text().strip()
         for index in range(self.__rosterTable.topLevelItemCount()):
             item = self.__rosterTable.topLevelItem(index)
-            if item.data(0, Qt.DisplayRole) == name:
+            if item.data(0, Qt.DisplayRole).lower() == name.lower():
+                QMessageBox.critical(self, "Error", "Player is already in the roster")
+                return
+        for index in range(self.__leagueTable.topLevelItemCount()):
+            item = self.__leagueTable.topLevelItem(index)
+            if item.data(0, Qt.DisplayRole).lower() == name.lower():
+                QMessageBox.critical(self, "Error", "Player is already in the league")
                 return
         rating = playerDialog.ratingEdit.text().strip()
         self.__leagueTable.addTopLevelItem(PlayerTableItem([name, rating]))
+
+    def __onCreateGroups(self):
+        if self.__leagueTable.topLevelItemCount() == 0:
+            QMessageBox.critical(self, "Error", "League is empty")
+            return
+        pass
 
     def __populate(self):
         for player in self.__roster:
