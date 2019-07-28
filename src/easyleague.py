@@ -14,10 +14,14 @@ import sys, csv
 from os.path import dirname, abspath, sep
 
 from PyQt5.QtWidgets import (QMainWindow, QAction, QMenu, QApplication,
-                            QPushButton, QDialog, QFileDialog, QMessageBox, QShortcut, QTreeWidget, QAbstractItemView, QVBoxLayout)
+                            QPushButton, QDialog, QFileDialog, QMessageBox, QShortcut, QTreeWidget, QAbstractItemView, QVBoxLayout, QHBoxLayout, QLabel, QWidget, QTreeWidgetItem)
 from PyQt5.QtGui import QIcon, QKeySequence
 
-from  player import Player
+from PyQt5.QtCore import Qt
+
+from  player import Player, PlayerTableItem
+
+from createPlayerDialog import CreatePlayerDialog
 
 
 IMAGE_PATH = dirname(dirname(abspath(__file__))) + sep + "img" + sep
@@ -32,7 +36,8 @@ class EasyLeagueMainWindow(QMainWindow):
         """doc"""
         super().__init__()
         self.__roster = []
-        self.__table = None
+        self.__rosterTable = None
+        self.__leagueTable = None
         self.__vLayout = None
         self.__initUI()
 
@@ -43,7 +48,6 @@ class EasyLeagueMainWindow(QMainWindow):
         """
         self.__createMainMenu()
         self.__createToolbar()
-        self.__createTable()
         self.__createLayout()
         self.setGeometry(200, 0, 1000, 800)
         self.setWindowTitle('EasyLeague')
@@ -85,25 +89,61 @@ class EasyLeagueMainWindow(QMainWindow):
         loadButton.setToolTip("Load File (Command+O)")
         loadButton.setIcon(QIcon(IMAGE_PATH + "load.png"))
         loadButton.clicked.connect(self.__onLoadFile)
+
+        createPlayerButton = QPushButton('Create Player', self)
+        createPlayerButton.clicked.connect(self.__onCreatePlayer)
+
         toolbar.addWidget(loadButton)
+        toolbar.addWidget(createPlayerButton)
 
     def __createTable(self):
-        self.__table = QTreeWidget()
-        self.__table.setAlternatingRowColors(True)
-        self.__table.setRootIsDecorated(False)
-        self.__table.setItemsExpandable(False)
-        self.__table.setSortingEnabled(True)
-        self.__table.setUniformRowHeights(True)
-        self.__table.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.__table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        table = QTreeWidget()
+        table.setAlternatingRowColors(True)
+        table.setRootIsDecorated(False)
+        table.setItemsExpandable(False)
+        table.setSortingEnabled(True)
+        table.setUniformRowHeights(True)
+        table.setSelectionMode(QAbstractItemView.SingleSelection)
+        table.setSelectionBehavior(QAbstractItemView.SelectRows)
 
         headerLabels = ["Name", "Rating"]
-        self.__table.setHeaderLabels(headerLabels)
+        table.setHeaderLabels(headerLabels)
+        return table
 
     def __createLayout(self):
-    #    self.__vLayout = QVBoxLayout(self)
-    #    self.__vLayout.addWidget(self.__table)
-        self.setCentralWidget(self.__table)
+
+        # Create roster vBox
+        rosterVbox = QVBoxLayout()
+        rosterLabel = QLabel("Roster")
+        rosterVbox.addWidget(rosterLabel)
+        self.__rosterTable = self.__createTable()
+        self.__rosterTable.itemSelectionChanged.connect(self.__onRosterSelect)
+        rosterVbox.addWidget(self.__rosterTable)
+        self.__rosterButton = QPushButton("Add")
+        self.__rosterButton.setEnabled(False)
+        self.__rosterButton.clicked.connect(self.__onAddToLeague)
+        rosterVbox.addWidget(self.__rosterButton)
+
+        # Create League vBox
+        leagueVbox = QVBoxLayout()
+        leagueLabel = QLabel("League")
+        leagueVbox.addWidget(leagueLabel)
+        self.__leagueTable = self.__createTable()
+        self.__leagueTable.itemSelectionChanged.connect(self.__onLeagueSelect)
+        leagueVbox.addWidget(self.__leagueTable)
+        self.__leagueButton = QPushButton("Remove")
+        self.__leagueButton.setEnabled(False)
+        self.__leagueButton.clicked.connect(self.__onRemoveFromLeague)
+        leagueVbox.addWidget(self.__leagueButton)
+
+        mainHbox = QHBoxLayout()
+        mainHbox.addLayout(rosterVbox)
+        mainHbox.addLayout(leagueVbox)
+
+        mainWidget = QWidget()
+        mainWidget.setLayout(mainHbox)
+
+        self.setCentralWidget(mainWidget)
 
     def __onLoadFile(self, checked=None):
         dialog = QFileDialog(self, 'Open League Roster')
@@ -138,7 +178,10 @@ class EasyLeagueMainWindow(QMainWindow):
                     player.firstName = row[2]
                     player.middleName = row[3]
                     player.sex = row[4]
-                    player.rating = row[5]
+                    if row[5] == "":
+                        player.rating = 0
+                    else:
+                        player.rating = int(row[5])
                     player.expiration = row[6]
                     player.lastPlayed = row[7]
                     player.email = row[8]
@@ -151,10 +194,48 @@ class EasyLeagueMainWindow(QMainWindow):
             QMessageBox.critical(self, "Error", "unknown error")
             return
 
-        for item in self.__roster:
-            print(str(item))
+        self.__populate()
 
+    def __onCreatePlayer(self):
+        """Create a new player"""
+        playerDialog = CreatePlayerDialog(self)
+        if playerDialog.exec_() == QDialog.Rejected:
+            return
+        name = playerDialog.nameEdit.text().strip()
+        for index in range(self.__rosterTable.topLevelItemCount()):
+            item = self.__rosterTable.topLevelItem(index)
+            if item.data(0, Qt.DisplayRole) == name:
+                return
+        rating = playerDialog.ratingEdit.text().strip()
+        self.__leagueTable.addTopLevelItem(PlayerTableItem([name, rating]))
 
+    def __populate(self):
+        for player in self.__roster:
+            self.__rosterTable.addTopLevelItem(PlayerTableItem(player))
+
+    def __onRosterSelect(self):
+        if len(self.__rosterTable.selectedItems()) >= 1:
+            self.__rosterButton.setEnabled(True)
+        else:
+            self.__rosterButton.setEnabled(False)
+
+    def __onLeagueSelect(self):
+        if len(self.__leagueTable.selectedItems()) >= 1:
+            self.__leagueButton.setEnabled(True)
+        else:
+            self.__leagueButton.setEnabled(False)
+
+    def __onAddToLeague(self):
+        selectedItem = self.__rosterTable.selectedItems()[0]
+        self.__leagueTable.addTopLevelItem(
+            PlayerTableItem([selectedItem.data(0, Qt.DisplayRole),
+                             selectedItem.data(1, Qt.DisplayRole)]))
+        self.__rosterTable.takeTopLevelItem(self.__rosterTable.currentIndex().row())
+
+    def __onRemoveFromLeague(self):
+        selectedItem = self.__leagueTable.selectedItems()[0]
+        self.__rosterTable.addTopLevelItem(PlayerTableItem([selectedItem.data(0, Qt.DisplayRole), selectedItem.data(1, Qt.DisplayRole)]))
+        self.__leagueTable.takeTopLevelItem(self.__leagueTable.currentIndex().row())
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

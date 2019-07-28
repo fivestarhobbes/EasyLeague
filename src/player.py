@@ -8,6 +8,8 @@ This class stores the data about a player
 Author: John Hsu
 
 """
+from PyQt5.QtWidgets import QTreeWidgetItem
+from PyQt5.QtCore import Qt
 
 class Player:
 
@@ -24,3 +26,28 @@ class Player:
 
     def __str__(self):
         return self.firstName + " " + self.lastName
+
+class PlayerTableItem(QTreeWidgetItem):
+
+    def __init__(self, player):
+        if type(player) == Player:
+            items = [player.firstName +  ' ' + player.lastName,
+                     str(player.rating)]
+        else:
+            items = player
+        QTreeWidgetItem.__init__(self, items)
+
+
+
+    def __lt__(self, other):
+        sortColumn = self.treeWidget().sortColumn()
+
+        if sortColumn == 1:
+            lhs = int(self.text(1))
+            rhs = int(other.text(1))
+            return lhs < rhs
+
+        return QTreeWidgetItem.__lt__(self, other)
+
+    def __str__(self):
+        return self.data(0, Qt.DisplayRole)
