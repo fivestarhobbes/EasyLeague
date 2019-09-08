@@ -10,21 +10,23 @@ Author: John Hsu
 
 """
 
-import sys, csv
+import sys
+import csv
 from os.path import dirname, abspath, sep
 
 from PyQt5.QtWidgets import (QMainWindow, QAction, QMenu, QApplication,
-                            QPushButton, QDialog, QFileDialog, QMessageBox, QShortcut, QTreeWidget, QAbstractItemView, QVBoxLayout, QHBoxLayout, QLabel, QWidget, QTreeWidgetItem)
+                             QPushButton, QDialog, QFileDialog, QMessageBox, QShortcut, QTreeWidget, QAbstractItemView, QVBoxLayout, QHBoxLayout, QLabel, QWidget, QTreeWidgetItem, QHeaderView)
 from PyQt5.QtGui import QIcon, QKeySequence
 
 from PyQt5.QtCore import Qt
 
-from  player import Player, PlayerTableItem
+from player import Player, PlayerTableItem
 
 from createPlayerDialog import CreatePlayerDialog
 
 
 IMAGE_PATH = dirname(dirname(abspath(__file__))) + sep + "img" + sep
+MAX_NUMBER_OF_GROUPS = 100
 
 class EasyLeagueMainWindow(QMainWindow):
     """
@@ -39,8 +41,8 @@ class EasyLeagueMainWindow(QMainWindow):
         self.__rosterTable = None
         self.__leagueTable = None
         self.__vLayout = None
+        self.__groups = []
         self.__initUI()
-
 
     def __initUI(self):
         """
@@ -109,9 +111,10 @@ class EasyLeagueMainWindow(QMainWindow):
         table.setUniformRowHeights(True)
         table.setSelectionMode(QAbstractItemView.SingleSelection)
         table.setSelectionBehavior(QAbstractItemView.SelectRows)
-
         headerLabels = ["Name", "Rating"]
         table.setHeaderLabels(headerLabels)
+        table.header().setSectionResizeMode(0, QHeaderView.Stretch)
+        table.header().setSectionResizeMode(1, QHeaderView.ResizeToContents)
         return table
 
     def __createLayout(self):
@@ -140,9 +143,22 @@ class EasyLeagueMainWindow(QMainWindow):
         self.__leagueButton.clicked.connect(self.__onRemoveFromLeague)
         leagueVbox.addWidget(self.__leagueButton)
 
+        # Create Groups vBox
+        groupVbox = QVBoxLayout()
+        groupLabel = QLabel("Group")
+        groupVbox.addWidget(groupLabel)
+        for groupNumber in range(MAX_NUMBER_OF_GROUPS):
+            groupNumberLabel = QLabel("Group " + str(groupNumber + 1))
+            groupNumberTable = self.__createTable()
+            groupVbox.addWidget(groupNumberLabel)
+            groupVbox.addWidget(groupNumberTable)
+            self.__groups.append([groupNumberLabel, groupNumberTable])
+        self.__hideGroups()
+
         mainHbox = QHBoxLayout()
         mainHbox.addLayout(rosterVbox)
         mainHbox.addLayout(leagueVbox)
+        mainHbox.addLayout(groupVbox)
 
         mainWidget = QWidget()
         mainWidget.setLayout(mainHbox)
@@ -209,12 +225,14 @@ class EasyLeagueMainWindow(QMainWindow):
         for index in range(self.__rosterTable.topLevelItemCount()):
             item = self.__rosterTable.topLevelItem(index)
             if item.data(0, Qt.DisplayRole).lower() == name.lower():
-                QMessageBox.critical(self, "Error", "Player is already in the roster")
+                QMessageBox.critical(
+                    self, "Error", "Player is already in the roster")
                 return
         for index in range(self.__leagueTable.topLevelItemCount()):
             item = self.__leagueTable.topLevelItem(index)
             if item.data(0, Qt.DisplayRole).lower() == name.lower():
-                QMessageBox.critical(self, "Error", "Player is already in the league")
+                QMessageBox.critical(
+                    self, "Error", "Player is already in the league")
                 return
         rating = playerDialog.ratingEdit.text().strip()
         self.__leagueTable.addTopLevelItem(PlayerTableItem([name, rating]))
@@ -246,12 +264,21 @@ class EasyLeagueMainWindow(QMainWindow):
         self.__leagueTable.addTopLevelItem(
             PlayerTableItem([selectedItem.data(0, Qt.DisplayRole),
                              selectedItem.data(1, Qt.DisplayRole)]))
-        self.__rosterTable.takeTopLevelItem(self.__rosterTable.currentIndex().row())
+        self.__rosterTable.takeTopLevelItem(
+            self.__rosterTable.currentIndex().row())
 
     def __onRemoveFromLeague(self):
         selectedItem = self.__leagueTable.selectedItems()[0]
-        self.__rosterTable.addTopLevelItem(PlayerTableItem([selectedItem.data(0, Qt.DisplayRole), selectedItem.data(1, Qt.DisplayRole)]))
-        self.__leagueTable.takeTopLevelItem(self.__leagueTable.currentIndex().row())
+        self.__rosterTable.addTopLevelItem(PlayerTableItem(
+            [selectedItem.data(0, Qt.DisplayRole), selectedItem.data(1, Qt.DisplayRole)]))
+        self.__leagueTable.takeTopLevelItem(
+            self.__leagueTable.currentIndex().row())
+
+    def __hideGroups(self):
+        for group in self.__groups:
+            group[0].setVisible(False)
+            group[1].setVisible(False)
+            group[1].clear()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
