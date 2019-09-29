@@ -10,6 +10,8 @@ Author: John Hsu
 
 """
 
+import sys
+
 
 def calculateNumberOfGroups(numberOfPlayers):
     if numberOfPlayers == 8:
@@ -46,10 +48,13 @@ def getGroups(numberOfPlayers):
 
 
 if __name__ == '__main__':
+    retCode = 0
     if getGroups(2) != [2]:
-        print("Failed for 2")
+        print("Failed for 2", file=sys.stderr)
+        retCode += 1
     if getGroups(3) != [3]:
-        print("Failed for 3")
+        print("Failed for 3", file=sys.stderr)
+        retCode += 1
     if getGroups(4) != [4]:
         print("Failed for 4")
     if getGroups(5) != [5]:
@@ -96,3 +101,4 @@ if __name__ == '__main__':
         print("Failed for 25")
     if getGroups(26) != [5, 5, 5, 5, 6]:
         print("Failed for 26")
+    sys.exit(retCode)

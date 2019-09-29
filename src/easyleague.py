@@ -24,9 +24,12 @@ from player import Player, PlayerTableItem
 
 from createPlayerDialog import CreatePlayerDialog
 
+from grouputil import getGroups
+
 
 IMAGE_PATH = dirname(dirname(abspath(__file__))) + sep + "img" + sep
 MAX_NUMBER_OF_GROUPS = 100
+
 
 class EasyLeagueMainWindow(QMainWindow):
     """
@@ -241,7 +244,34 @@ class EasyLeagueMainWindow(QMainWindow):
         if self.__leagueTable.topLevelItemCount() == 0:
             QMessageBox.critical(self, "Error", "League is empty")
             return
-        pass
+        groups = getGroups(self.__leagueTable.topLevelItemCount())
+        if len(groups) > MAX_NUMBER_OF_GROUPS:
+            QMessageBox.critical(self, "Error", "Too many groups")
+            return
+        self.__hideGroups()
+        tempLeague = []
+        for index in range(self.__leagueTable.topLevelItemCount()):
+            item = self.__leagueTable.topLevelItem(index)
+            name = item.data(0, Qt.DisplayRole)
+            rating = int(item.data(1, Qt.DisplayRole))
+            tempLeague.append((name, rating))
+
+        def sortSecond(val):
+            return val[1]
+        tempLeague.sort(key=sortSecond, reverse=True)
+        # print(tempLeague)
+        tempLeagueIndex = 0
+        currGroup = 0
+        for size in groups:
+            for index in range(size):
+                player = tempLeague[tempLeagueIndex]
+                name = player[0]
+                rating = player[1]
+                self.__groups[currGroup][1].addTopLevelItem(
+                    PlayerTableItem([name, str(rating)]))
+                tempLeagueIndex += 1
+            currGroup += 1
+        self.__showGroups(len(groups))
 
     def __populate(self):
         for player in self.__roster:
@@ -279,6 +309,12 @@ class EasyLeagueMainWindow(QMainWindow):
             group[0].setVisible(False)
             group[1].setVisible(False)
             group[1].clear()
+
+    def __showGroups(self, numberOfGroups):
+        for groupIndex in range(numberOfGroups):
+            self.__groups[groupIndex][0].setVisible(True)
+            self.__groups[groupIndex][1].setVisible(True)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
