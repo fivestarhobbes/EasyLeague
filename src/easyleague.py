@@ -111,6 +111,7 @@ class EasyLeagueMainWindow(QMainWindow):
         table.setRootIsDecorated(False)
         table.setItemsExpandable(False)
         table.setSortingEnabled(True)
+        table.sortByColumn(1, Qt.DescendingOrder)
         table.setUniformRowHeights(True)
         table.setSelectionMode(QAbstractItemView.SingleSelection)
         table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -258,6 +259,7 @@ class EasyLeagueMainWindow(QMainWindow):
 
         def sortSecond(val):
             return val[1]
+
         tempLeague.sort(key=sortSecond, reverse=True)
         # print(tempLeague)
         tempLeagueIndex = 0
@@ -272,6 +274,8 @@ class EasyLeagueMainWindow(QMainWindow):
                 tempLeagueIndex += 1
             currGroup += 1
         self.__showGroups(len(groups))
+        self.hide()
+        self.show()
 
     def __populate(self):
         for player in self.__roster:
@@ -305,7 +309,10 @@ class EasyLeagueMainWindow(QMainWindow):
             self.__leagueTable.currentIndex().row())
 
     def __hideGroups(self):
-        for group in self.__groups:
+        for index, group in enumerate(self.__groups):
+            if index == 0:
+                group[1].clear()
+                continue
             group[0].setVisible(False)
             group[1].setVisible(False)
             group[1].clear()
