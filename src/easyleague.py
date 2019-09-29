@@ -149,7 +149,7 @@ class EasyLeagueMainWindow(QMainWindow):
 
         # Create Groups vBox
         groupVbox = QVBoxLayout()
-        groupLabel = QLabel("Group")
+        groupLabel = QLabel("Groups")
         groupVbox.addWidget(groupLabel)
         for groupNumber in range(MAX_NUMBER_OF_GROUPS):
             groupNumberLabel = QLabel("Group " + str(groupNumber + 1))
