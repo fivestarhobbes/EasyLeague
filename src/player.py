@@ -5,11 +5,12 @@ EasyLeague Player Class
 
 This class stores the data about a player
 
-Author: John Hsu
+Author: John Hsu and Sergey Satskiy
 
 """
 from PyQt5.QtWidgets import QTreeWidgetItem
 from PyQt5.QtCore import Qt
+
 
 class Player:
 
@@ -27,17 +28,16 @@ class Player:
     def __str__(self):
         return self.firstName + " " + self.lastName
 
+
 class PlayerTableItem(QTreeWidgetItem):
 
     def __init__(self, player):
         if type(player) == Player:
-            items = [player.firstName +  ' ' + player.lastName,
+            items = [player.firstName + ' ' + player.lastName,
                      str(player.rating)]
         else:
             items = player
         QTreeWidgetItem.__init__(self, items)
-
-
 
     def __lt__(self, other):
         sortColumn = self.treeWidget().sortColumn()

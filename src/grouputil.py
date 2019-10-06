@@ -6,7 +6,7 @@ Group Utility
 
 This file will contain functions that will help us make the groups.
 
-Author: John Hsu
+Author: John Hsu and Sergey Satskiy
 
 """
 

@@ -6,7 +6,7 @@ EasyLeague Application
 
 This program will allow users to setup and run a league.
 
-Author: John Hsu
+Author: John Hsu and Sergey Satskiy
 
 """
 
