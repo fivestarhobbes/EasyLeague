@@ -125,8 +125,8 @@ class EasyLeagueMainWindow(QMainWindow):
 
         # Create roster vBox
         rosterVbox = QVBoxLayout()
-        rosterLabel = QLabel("Roster")
-        rosterVbox.addWidget(rosterLabel)
+        self.__rosterLabel = QLabel("Roster")
+        rosterVbox.addWidget(self.__rosterLabel)
         self.__rosterTable = self.__createTable()
         self.__rosterTable.itemSelectionChanged.connect(self.__onRosterSelect)
         rosterVbox.addWidget(self.__rosterTable)
@@ -137,8 +137,8 @@ class EasyLeagueMainWindow(QMainWindow):
 
         # Create League vBox
         leagueVbox = QVBoxLayout()
-        leagueLabel = QLabel("League")
-        leagueVbox.addWidget(leagueLabel)
+        self.__leagueLabel = QLabel("League")
+        leagueVbox.addWidget(self.__leagueLabel)
         self.__leagueTable = self.__createTable()
         self.__leagueTable.itemSelectionChanged.connect(self.__onLeagueSelect)
         leagueVbox.addWidget(self.__leagueTable)
@@ -240,6 +240,7 @@ class EasyLeagueMainWindow(QMainWindow):
                 return
         rating = playerDialog.ratingEdit.text().strip()
         self.__leagueTable.addTopLevelItem(PlayerTableItem([name, rating]))
+        self.__updateLeagueLabel()
 
     def __onCreateGroups(self):
         if self.__leagueTable.topLevelItemCount() == 0:
@@ -280,6 +281,7 @@ class EasyLeagueMainWindow(QMainWindow):
     def __populate(self):
         for player in self.__roster:
             self.__rosterTable.addTopLevelItem(PlayerTableItem(player))
+        self.__updateRosterLabel()
 
     def __onRosterSelect(self):
         if len(self.__rosterTable.selectedItems()) >= 1:
@@ -300,6 +302,8 @@ class EasyLeagueMainWindow(QMainWindow):
                              selectedItem.data(1, Qt.DisplayRole)]))
         self.__rosterTable.takeTopLevelItem(
             self.__rosterTable.currentIndex().row())
+        self.__updateRosterLabel()
+        self.__updateLeagueLabel()
 
     def __onRemoveFromLeague(self):
         selectedItem = self.__leagueTable.selectedItems()[0]
@@ -307,6 +311,8 @@ class EasyLeagueMainWindow(QMainWindow):
             [selectedItem.data(0, Qt.DisplayRole), selectedItem.data(1, Qt.DisplayRole)]))
         self.__leagueTable.takeTopLevelItem(
             self.__leagueTable.currentIndex().row())
+        self.__updateRosterLabel()
+        self.__updateLeagueLabel()
 
     def __hideGroups(self):
         for index, group in enumerate(self.__groups):
@@ -321,6 +327,18 @@ class EasyLeagueMainWindow(QMainWindow):
         for groupIndex in range(numberOfGroups):
             self.__groups[groupIndex][0].setVisible(True)
             self.__groups[groupIndex][1].setVisible(True)
+
+    def __updateRosterLabel(self):
+        self.__rosterLabel.setText(
+            'Roster (' + str(self.__rosterTable.topLevelItemCount()) + ')')
+        self.hide()
+        self.show()
+
+    def __updateLeagueLabel(self):
+        self.__leagueLabel.setText(
+            'League (' + str(self.__leagueTable.topLevelItemCount()) + ')')
+        self.hide()
+        self.show()
 
 
 if __name__ == '__main__':
