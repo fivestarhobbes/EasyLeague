@@ -37,6 +37,7 @@ except Exception as exc:
 # dependencies
 setup(name='easyleague',
       description=description,
+      python_requires='>=3.7',
       long_description=long_description,
       version="1.0.0",
       author='John Hsu',
@@ -50,4 +51,7 @@ setup(name='easyleague',
           'Operating System :: OS Independent',
           'Programming Language :: Python :: 3'],
       platforms=['any'],
+      packages=['src'],
+      install_requires=['PyQt5==5.13.2'],
+      entry_points={'gui_scripts': ['easyleague = src.easyleague:main']}
       )
