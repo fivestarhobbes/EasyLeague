@@ -11,8 +11,11 @@ Author: John Hsu and Sergey Satskiy
 """
 
 import sys
-import csv
 from os.path import dirname, abspath, sep
+sys.path.insert(0, dirname(__file__))
+
+import csv
+
 
 from PyQt5.QtWidgets import (QMainWindow, QAction, QMenu, QApplication,
                              QPushButton, QDialog, QFileDialog, QMessageBox, QShortcut, QTreeWidget, QAbstractItemView, QVBoxLayout, QHBoxLayout, QLabel, QWidget, QTreeWidgetItem, QHeaderView)
@@ -341,7 +344,11 @@ class EasyLeagueMainWindow(QMainWindow):
         self.show()
 
 
-if __name__ == '__main__':
+def main():
     app = QApplication(sys.argv)
     ex = EasyLeagueMainWindow()
     sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()
