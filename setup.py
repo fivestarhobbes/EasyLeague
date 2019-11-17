@@ -21,7 +21,7 @@ description = 'This program will allow users to setup and run a table tennis lea
 
 try:
     import pypandoc
-    long_description = pypandoc.convert_file('README.md', 'rst').splitlines()
+    long_description = pypandoc.convert_file('README.md', 'rst')
 
 except Exception as exc:
     print('pypandoc package is not installed: the markdown '
@@ -30,6 +30,31 @@ except Exception as exc:
     # pandoc is not installed, fallback to using raw contents
     with io.open('README.md', encoding='utf-8') as f:
         long_description = f.read()
+
+
+def getPackageData():
+    """Provides the data files"""
+    extensions = ['.png']
+    package_data = [('img',
+                     'img/')]
+
+    # If a skin needs to be added, then the following item should be also
+    # appended:
+    # package_data.append(('codimension.skins.myskin',
+    #                      'codimension/skins/myskin/'))
+
+    result = {}
+    for item in package_data:
+        package = item[0]
+        matchFiles = []
+        for fName in os.listdir(item[1]):
+            for ext in extensions:
+                if fName.endswith(ext):
+                    matchFiles.append(fName)
+                    break
+        if matchFiles:
+            result[package] = matchFiles
+    return result
 
 
 # install_requires=['pypandoc'] could be added but really it needs to only
@@ -52,6 +77,7 @@ setup(name='easyleague',
           'Programming Language :: Python :: 3'],
       platforms=['any'],
       packages=['src'],
+      package_data=getPackageData(),
       install_requires=['PyQt5==5.13.2'],
       entry_points={'gui_scripts': ['easyleague = src.easyleague:main']}
       )
