@@ -18,7 +18,11 @@ import csv
 
 
 from PyQt5.QtWidgets import (QMainWindow, QAction, QMenu, QApplication,
-                             QPushButton, QDialog, QFileDialog, QMessageBox, QShortcut, QTreeWidget, QAbstractItemView, QVBoxLayout, QHBoxLayout, QLabel, QWidget, QTreeWidgetItem, QHeaderView)
+                             QPushButton, QDialog, QFileDialog, QMessageBox,
+                             QShortcut, QTreeWidget, QAbstractItemView,
+                             QVBoxLayout, QHBoxLayout, QLabel, QWidget,
+                             QTreeWidgetItem, QHeaderView, QLayout,
+                             QScrollArea)
 from PyQt5.QtGui import QIcon, QKeySequence
 
 from PyQt5.QtCore import Qt
@@ -151,21 +155,36 @@ class EasyLeagueMainWindow(QMainWindow):
         leagueVbox.addWidget(self.__leagueButton)
 
         # Create Groups vBox
-        groupVbox = QVBoxLayout()
+        class ScrollContainer(QWidget):
+            def __init__(self):
+                QWidget.__init__(self)
+                self.layout = QVBoxLayout()
+                self.layout.setSizeConstraint(QLayout.SetMinAndMaxSize)
+                self.setLayout(self.layout)
+        scrollContainer = ScrollContainer()
+
+#        groupVbox = QVBoxLayout()
         groupLabel = QLabel("Groups")
-        groupVbox.addWidget(groupLabel)
+#        groupVbox.addWidget(groupLabel)
+        scrollContainer.layout.addWidget(groupLabel)
         for groupNumber in range(MAX_NUMBER_OF_GROUPS):
             groupNumberLabel = QLabel("Group " + str(groupNumber + 1))
             groupNumberTable = self.__createTable()
-            groupVbox.addWidget(groupNumberLabel)
-            groupVbox.addWidget(groupNumberTable)
+#            groupVbox.addWidget(groupNumberLabel)
+#            groupVbox.addWidget(groupNumberTable)
+            scrollContainer.layout.addWidget(groupNumberLabel)
+            scrollContainer.layout.addWidget(groupNumberTable)
             self.__groups.append([groupNumberLabel, groupNumberTable])
         self.__hideGroups()
+
+        groupScroll = QScrollArea()
+        groupScroll.setWidget(scrollContainer)
 
         mainHbox = QHBoxLayout()
         mainHbox.addLayout(rosterVbox)
         mainHbox.addLayout(leagueVbox)
-        mainHbox.addLayout(groupVbox)
+#        mainHbox.addLayout(groupVbox)
+        mainHbox.addWidget(groupScroll)
 
         mainWidget = QWidget()
         mainWidget.setLayout(mainHbox)
