@@ -10,28 +10,22 @@ Author: John Hsu and Sergey Satskiy
 
 """
 
-import sys
-from os.path import dirname, abspath, sep
-sys.path.insert(0, dirname(__file__))
-
-import csv
-
-
+from util import setFullHeight
+from grouputil import getGroups
+from createPlayerDialog import CreatePlayerDialog
+from player import Player, PlayerTableItem
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import (QMainWindow, QAction, QMenu, QApplication,
                              QPushButton, QDialog, QFileDialog, QMessageBox,
                              QShortcut, QTreeWidget, QAbstractItemView,
                              QVBoxLayout, QHBoxLayout, QLabel, QWidget,
                              QTreeWidgetItem, QHeaderView, QLayout,
                              QScrollArea)
-from PyQt5.QtGui import QIcon, QKeySequence
-
-from PyQt5.QtCore import Qt
-
-from player import Player, PlayerTableItem
-
-from createPlayerDialog import CreatePlayerDialog
-
-from grouputil import getGroups
+import csv
+import sys
+from os.path import dirname, abspath, sep
+sys.path.insert(0, dirname(__file__))
 
 
 IMAGE_PATH = dirname(dirname(abspath(__file__))) + sep + "img" + sep
@@ -349,6 +343,7 @@ class EasyLeagueMainWindow(QMainWindow):
         for groupIndex in range(numberOfGroups):
             self.__groups[groupIndex][0].setVisible(True)
             self.__groups[groupIndex][1].setVisible(True)
+            setFullHeight(self.__groups[groupIndex][1])
 
     def __updateRosterLabel(self):
         self.__rosterLabel.setText(
