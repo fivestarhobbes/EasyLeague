@@ -21,4 +21,4 @@ def setFullHeight(treeWidget):
 
     if fullHeight != 0:
         fullHeight += treeWidget.header().sizeHint().height()
-        treeWidget.setMinimumHeight(fullHeight)
+        treeWidget.setMinimumHeight(fullHeight + 5)
