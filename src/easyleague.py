@@ -15,7 +15,7 @@ from grouputil import getGroups
 from createPlayerDialog import CreatePlayerDialog
 from player import Player, PlayerTableItem
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QKeySequence
+from PyQt5.QtGui import QIcon, QKeySequence, QCursor
 from PyQt5.QtWidgets import (QMainWindow, QAction, QMenu, QApplication,
                              QPushButton, QDialog, QFileDialog, QMessageBox,
                              QShortcut, QTreeWidget, QAbstractItemView,
@@ -53,6 +53,7 @@ class EasyLeagueMainWindow(QMainWindow):
         This method will create the initial screen for EasyLeague
         """
         self.__createMainMenu()
+        self.__createGroupContextMenu()
         self.__createToolbar()
         self.__createLayout()
         self.setGeometry(200, 0, 1000, 800)
@@ -164,6 +165,9 @@ class EasyLeagueMainWindow(QMainWindow):
         for groupNumber in range(MAX_NUMBER_OF_GROUPS):
             groupNumberLabel = QLabel("Group " + str(groupNumber + 1))
             groupNumberTable = self.__createTable()
+            groupNumberTable.setContextMenuPolicy(Qt.CustomContextMenu)
+            groupNumberTable.customContextMenuRequested.connect(
+                self.__handleShowPlayerContextMenu)
 #            groupVbox.addWidget(groupNumberLabel)
 #            groupVbox.addWidget(groupNumberTable)
             scrollContainer.layout.addWidget(groupNumberLabel)
@@ -184,6 +188,32 @@ class EasyLeagueMainWindow(QMainWindow):
         mainWidget.setLayout(mainHbox)
 
         self.setCentralWidget(mainWidget)
+
+    def __createGroupContextMenu(self):
+        """Create the context menu for a group"""
+        self.__groupMenu = QMenu(self)
+        self.__moveUpMenuItem = self.__groupMenu.addAction(
+            'Move Up', self.__movePlayerUp)
+        self.__moveDownMenuItem = self.__groupMenu.addAction(
+            'Move Down', self.__movePlayerDown)
+
+    def __movePlayerUp():
+        pass
+
+    def __movePlayerDown():
+        pass
+
+    def __handleShowPlayerContextMenu(self, coord):
+        lastGroupIndex = self.__getVisibleGroups() - 1
+        for groupNumber, groupInfo in enumerate(self.__groups):
+            if groupInfo[1].hasFocus():
+                playerItem = groupInfo[1].itemAt(coord)
+                if playerItem is not None:
+                    self.__moveUpMenuItem.setEnabled(groupNumber != 0)
+                    self.__moveDownMenuItem.setEnabled(
+                        groupNumber != lastGroupIndex)
+                    self.__groupMenu.popup(QCursor.pos())
+                    break
 
     def __onLoadFile(self, checked=None):
         dialog = QFileDialog(self, 'Open League Roster')
@@ -356,6 +386,13 @@ class EasyLeagueMainWindow(QMainWindow):
             'League (' + str(self.__leagueTable.topLevelItemCount()) + ')')
         self.hide()
         self.show()
+
+    def __getVisibleGroups(self):
+        numberVisible = 0
+        for groupInfo in self.__groups:
+            if groupInfo[1].isVisible():
+                numberVisible += 1
+        return numberVisible
 
 
 def main():
