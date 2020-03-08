@@ -25,11 +25,17 @@ from PyQt5.QtWidgets import (QMainWindow, QAction, QMenu, QApplication,
 import csv
 import sys
 from os.path import dirname, abspath, sep
+from enum import Enum
 sys.path.insert(0, dirname(__file__))
 
 
 IMAGE_PATH = dirname(dirname(abspath(__file__))) + sep + "img" + sep
 MAX_NUMBER_OF_GROUPS = 100
+
+
+class Direction(Enum):
+    UP = -1
+    DOWN = 1
 
 
 class EasyLeagueMainWindow(QMainWindow):
@@ -46,6 +52,7 @@ class EasyLeagueMainWindow(QMainWindow):
         self.__leagueTable = None
         self.__vLayout = None
         self.__groups = []
+        self.__selectedItem = None
         self.__initUI()
 
     def __initUI(self):
@@ -197,11 +204,32 @@ class EasyLeagueMainWindow(QMainWindow):
         self.__moveDownMenuItem = self.__groupMenu.addAction(
             'Move Down', self.__movePlayerDown)
 
-    def __movePlayerUp():
-        pass
+    def __movePlayerUp(self):
+        self.__movePlayer(Direction.UP)
 
-    def __movePlayerDown():
-        pass
+    def __movePlayerDown(self):
+        self.__movePlayer(Direction.DOWN)
+
+    def __movePlayer(self, direction):
+        # Add to the target group
+        targetGroupIndex = self.__selectedItem[1] + direction
+        targetGroup = self.__groups[targetGroupIndex][1]
+        playerName = self.__selectedItem[0].data(0, Qt.DisplayRole)
+        playerRating = self.__selectedItem[0].data(1, Qt.DisplayRole)
+        targetGroup.addTopLevelItem(
+            PlayerTableItem([playerName, playerRating]))
+
+        # Remove from the source group
+        sourceGroupIndex = self.__selectedItem[1]
+        sourceGroup = self.__groups[sourceGroupIndex][1]
+        sourceGroup.takeTopLevelItem(sourceGroup.currentIndex().row())
+
+        # Re-adjust height
+        setFullHeight(targetGroup)
+        setFullHeight(sourceGroup)
+
+        # Re-sort the view by rating
+        targetGroup.sortByColumn(1, Qt.DescendingOrder)
 
     def __handleShowPlayerContextMenu(self, coord):
         lastGroupIndex = self.__getVisibleGroups() - 1
@@ -209,6 +237,7 @@ class EasyLeagueMainWindow(QMainWindow):
             if groupInfo[1].hasFocus():
                 playerItem = groupInfo[1].itemAt(coord)
                 if playerItem is not None:
+                    self.__selectedItem = (playerItem, groupNumber)
                     self.__moveUpMenuItem.setEnabled(groupNumber != 0)
                     self.__moveDownMenuItem.setEnabled(
                         groupNumber != lastGroupIndex)
